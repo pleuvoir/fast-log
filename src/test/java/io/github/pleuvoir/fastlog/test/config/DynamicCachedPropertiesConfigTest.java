@@ -2,7 +2,6 @@ package io.github.pleuvoir.fastlog.test.config;
 
 import io.github.pleuvoir.fastlog.config.DynamicCachedPropertiesConfig;
 import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -10,16 +9,15 @@ import org.junit.Test;
  */
 public class DynamicCachedPropertiesConfigTest {
 
+
+    //测试时必须通过文件系统修改，不要在IDEA中修改文件否则识别不到刷新
     @Test
     public void test() throws InterruptedException {
-        String value = DynamicCachedPropertiesConfig.getString("/Users/pleuvoir/dev/space/git/fast-log/src/test/resources/fastlog.properties",
-                "name   ");
-        Assert.assertEquals("pleuvoir", value);
 
-        TimeUnit.SECONDS.sleep(10);
-
-        String value2 = DynamicCachedPropertiesConfig.getString("/Users/pleuvoir/dev/space/git/fast-log/src/test/resources/fastlog.properties",
-                "name   ");
-        Assert.assertEquals("pleuvoir", value2);
+        while (true) {
+            TimeUnit.SECONDS.sleep(1);
+            DynamicCachedPropertiesConfig.getString("age");
+            DynamicCachedPropertiesConfig.printAll();
+        }
     }
 }
