@@ -1,7 +1,5 @@
 package io.github.pleuvoir.fastlog.config;
 
-import io.github.pleuvoir.fastlog.constants.Const;
-
 /**
  * 日志文件配置
  *
@@ -9,11 +7,19 @@ import io.github.pleuvoir.fastlog.constants.Const;
  */
 public class LogConfig extends ReloadPropertiesable {
 
-    //保证单例
-    public static final LogConfig INSTANCE = new LogConfig(Const.LOG_FILE_NAME);
+    //日志文件名称
+    private static String LOG_FILE_NAME = "fastlog.properties";
 
     private LogConfig(String propPath) {
         super(propPath);
     }
 
+    public static LogConfig getInstance() {
+        return LoaderHelper.INSTANCE;
+    }
+
+    public static class LoaderHelper {
+
+        static LogConfig INSTANCE = new LogConfig(LOG_FILE_NAME);
+    }
 }

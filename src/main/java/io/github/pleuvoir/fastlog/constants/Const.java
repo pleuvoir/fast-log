@@ -12,26 +12,24 @@ import java.util.Map;
 public class Const {
 
     //调试
-    public static final int DEBUG = 0;
+    public static final String DEBUG = "0";
     //普通
-    public static final int INFO = 1;
+    public static final String INFO = "1";
     //告警
-    public static final int WARN = 2;
+    public static final String WARN = "2";
     //错误
-    public static final int ERROR = 3;
+    public static final String ERROR = "3";
     //严重
-    public static final int FATAl = 4;
+    public static final String FATAl = "4";
 
     //配置文件定义的日志级别
-    public static final String CFG_LOG_LEVEL = LogConfig.INSTANCE.getString("CFG_LOG_LEVEL", "INFO");
+    public static String CFG_LOG_LEVEL = LogConfig.getInstance().getString("CFG_LOG_LEVEL", INFO);
     //配置文件定义的日志输出路径
-    public static final String CFG_LOG_PATH = LogConfig.INSTANCE.getString("CFG_LOG_PATH", "opt/fastlog/logs");
+    public static String CFG_LOG_PATH = LogConfig.getInstance().getString("CFG_LOG_PATH", "/opt/fastlog/logs");
     //是否输出到控制台
-    public static final boolean CONSOLE_PRINT_ENABLED = LogConfig.INSTANCE.getBoolean("CONSOLE_PRINT_ENABLED", false);
+    public static boolean CONSOLE_PRINT_ENABLED = LogConfig.getInstance().getBoolean("CONSOLE_PRINT_ENABLED", false);
     //当前环境的字符集
-    public static final String CFG_CHARSET_NAME = LogConfig.INSTANCE.getString("CFG_CHARSET_NAME", "UTF-8");
-    //日志文件名称
-    public static final String LOG_FILE_NAME = "fastlog.properties";
+    public static String CFG_CHARSET_NAME = LogConfig.getInstance().getString("CFG_CHARSET_NAME", "UTF-8");
 
 
     public static final Map<String, String> LEVEL_DICT = new HashMap<String, String>() {{

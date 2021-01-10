@@ -1,5 +1,6 @@
 package io.github.pleuvoir.fastlog.test.config;
 
+import io.github.pleuvoir.fastlog.FastLog;
 import io.github.pleuvoir.fastlog.config.LogConfig;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
@@ -10,16 +11,19 @@ import org.junit.Test;
  */
 public class LogConfigTest {
 
+    private FastLog log = FastLog.getInstance();
+
     @Test
     public void test() throws InterruptedException {
 
+
         while (true) {
-            TimeUnit.SECONDS.sleep(3);
-            final String name = LogConfig.INSTANCE.getString("name");
+            final String name = LogConfig.getInstance().getString("name");
             System.out.println(name);
-            final byte[] bytes = LogConfig.INSTANCE.getBytes("name", Charset.defaultCharset());
+            final byte[] bytes = LogConfig.getInstance().getBytes("name", Charset.defaultCharset());
 
             System.out.println(new String(bytes));
+            TimeUnit.SECONDS.sleep(3);
         }
 
     }

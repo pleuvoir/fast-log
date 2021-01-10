@@ -24,9 +24,11 @@ public final class DynamicCachedPropertiesConfig {
 
     private static Map<String /** 文件绝对路径**/, PropertiesWrap> cache = new HashMap<>();
 
+    //日志文件名称
+    private static String LOG_FILE_NAME = "fastlog.properties";
 
     public static String getString(String key) {
-        return getString(Const.LOG_FILE_NAME, key);
+        return getString(LOG_FILE_NAME, key);
     }
 
 
