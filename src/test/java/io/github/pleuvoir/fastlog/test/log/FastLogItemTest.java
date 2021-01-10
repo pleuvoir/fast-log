@@ -3,6 +3,7 @@ package io.github.pleuvoir.fastlog.test.log;
 import io.github.pleuvoir.fastlog.log.FastLogItem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 /**
@@ -55,5 +56,27 @@ public class FastLogItemTest {
         }
 
     }
+
+    //刷盘间隔
+    public long flushInterval = 1000L;
+    //刷盘缓存大小 10M
+    public long flushCacheSize = 10 * 1024 * 1024;
+
+    @Test
+    public void testFlush() throws InterruptedException {
+        //如果时间超了 或者大小超过 则刷盘
+
+        final FastLogItem logItem = new FastLogItem();
+
+        logItem.setCurCacheSize(logItem.getCurCacheSize() + 1 * 1024 * 1024);
+        logItem.setNextWriteTimeStamp(System.currentTimeMillis() + flushInterval);
+
+        TimeUnit.SECONDS.sleep(2);
+        if (System.currentTimeMillis() >= logItem.getNextWriteTimeStamp() || logItem.getCurCacheSize() >= flushCacheSize) {
+            System.out.println("刷盘");
+        }
+
+    }
+
 
 }
