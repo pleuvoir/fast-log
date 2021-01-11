@@ -15,8 +15,8 @@ public class BenchmarkTest {
     private static final int threadNum = 1;
     private FastLog log = FastLog.getInstance();
 
-    private int loop = 1000;
-    private AtomicInteger count = new AtomicInteger(loop);
+    private int loop = 20;
+    private AtomicInteger count = new AtomicInteger(0);
 
     @Test
     public void test() throws InterruptedException {
@@ -26,11 +26,12 @@ public class BenchmarkTest {
 
         final long start = System.currentTimeMillis();
         for (int i = 0; i < loop; i++) {
-         //   pool.execute(() -> {
+            pool.execute(() -> {
                 log.info("hello world.hello world.");
+                log.error("hello world.hello world.");
                 count.incrementAndGet();
                 latch.countDown();
-         //   });
+            });
         }
         latch.await();
 

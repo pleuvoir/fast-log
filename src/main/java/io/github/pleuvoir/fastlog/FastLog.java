@@ -48,7 +48,7 @@ public class FastLog {
         writeLog("warn", Const.WARN, message);
     }
 
-    public void info(String message) {
+    public synchronized void info(String message) {
         writeLog("info", Const.INFO, message);
     }
 
@@ -76,7 +76,7 @@ public class FastLog {
                     || Const.CONSOLE_PRINT_ENABLED) {
 
                 try {
-                    System.out.println(sb);
+                    System.out.print(sb);
                 } catch (Throwable e) {
                     System.err.println(ExceptionUtils.getStackTrace(e));
                 }

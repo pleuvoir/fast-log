@@ -27,6 +27,7 @@ public class IOUtils {
             try {
                 return file.createNewFile();
             } catch (IOException e) {
+                e.printStackTrace(System.err);
                 return false;
             }
         }

@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 日志管理类<br>
- *     存在BUG 拆分文件有问题
  *
  * @author <a href="mailto:fuwei@daojia-inc.com">pleuvoir</a>
  */
@@ -57,7 +56,7 @@ public class FastLogManager extends Thread {
     /**
      * 创建日志文件
      */
-    private static synchronized void createLogFile(FastLogItem logItem) {
+    private static void createLogFile(FastLogItem logItem) {
         //创建日志ROOT目录
         if (!IOUtils.mkdirs(Const.CFG_LOG_PATH)) {
             return;
@@ -66,47 +65,51 @@ public class FastLogManager extends Thread {
         //第一次创建文件
         final String currentDate = DateFormat.DATE_COMPACT.format(new Date());
         if (StringUtils.isBlank(logItem.getFullLogFileName()) || !logItem.getLastWritedate().equals(currentDate)) {
-            //子目录
-            String subDir = Const.CFG_LOG_PATH + "/" + currentDate;
-            IOUtils.mkdirs(subDir);
-
-            //完整的日志文件路径
-            final String fullLogFileName = subDir + "/" + logItem.getLogFileName() + ".log";
-            logItem.setFullLogFileName(fullLogFileName);
-            //最后一次写入的日期
-            logItem.setLastWritedate(currentDate);
-
-            final File file = new File(fullLogFileName);
-            if (!file.exists()) {
-                IOUtils.createNewFile(logItem.getFullLogFileName());
-                logItem.setCurLogFileSize(0);
-            }else{
-                logItem.setCurLogFileSize(file.length());
-            }
+            supplyFile(logItem, currentDate);
         }
 
+        //标记文件大小
         final File file = new File(logItem.getFullLogFileName());
         logItem.setCurLogFileSize(file.length());
 
-
-        //如果超过单个文件最大大小则拆分文件  有BUG
+        /*
+         *  如果超过单个文件最大大小则备份文件，并创建新文件。
+         *  这个文件的大小可能会超出设置的最大文件大小，比如第一次创建的文件就已经超出了最大值，第二次flush时就会备份，此时就超出了大小。
+         */
         if (!StringUtils.isBlank(logItem.getFullLogFileName()) && logItem.getCurLogFileSize() > SINGLE_FILE_MAX_SIZE) {
             final File oldFile = new File(logItem.getFullLogFileName());
             if (oldFile.exists()) {
-                //当文件最大大小很小时，防止同一毫秒出现重复文件，所以使用时间戳
                 String newFileName =
                         Const.CFG_LOG_PATH + "/" + logItem.getLogFileName() + "_" + DateFormat.MS.format(new Date())
                                 + ".log";
                 final File newFile = new File(newFileName);
                 final boolean b = oldFile.renameTo(newFile);
-                System.out.println("日志已拆分为" + newFileName + (b ? "成功" : "失败"));
-                logItem.setFullLogFileName("");
-                logItem.setCurLogFileSize(0);
+                System.out.println("日志已备份为" + newFileName + (b ? "成功" : "失败"));
+                //重新创建文件
+                supplyFile(logItem, currentDate);
             }
         }
+    }
 
 
+    private static void supplyFile(FastLogItem logItem, String currentDate) {
+        //子目录
+        String subDir = Const.CFG_LOG_PATH + "/" + currentDate;
+        IOUtils.mkdirs(subDir);
+        //完整的日志文件路径
+        final String fullLogFileName = subDir + "/" + logItem.getLogFileName() + ".log";
+        logItem.setFullLogFileName(fullLogFileName);
+        //最后一次写入的日期
+        logItem.setLastWritedate(currentDate);
 
+        final File file = new File(fullLogFileName);
+        if (!file.exists()) {
+            IOUtils.createNewFile(logItem.getFullLogFileName());
+            logItem.setCurLogFileSize(0);
+        } else {
+            //当应用重启后会需要重新设置该文件大小
+            logItem.setCurLogFileSize(file.length());
+        }
     }
 
 
@@ -115,7 +118,7 @@ public class FastLogManager extends Thread {
 
         for (FastLogItem item : ITEMS.values()) {
             List<StringBuffer> currentBuffer;
-            if (currentTimeMillis > item.getNextWriteTimeStamp()
+            if (currentTimeMillis >= item.getNextWriteTimeStamp()
                     || item.getCurCacheSize() > FLUSH_CACHE_SIZE
                     || forceFlush) {
                 final char curBuffer = item.curBuffer;
@@ -127,7 +130,7 @@ public class FastLogManager extends Thread {
                     item.curBuffer = 'A';
                 }
 
-                //创建日志文件
+                //创建或者备份日志文件
                 createLogFile(item);
                 //写入文件内容
                 writeToFile(item.getFullLogFileName(), currentBuffer);
@@ -136,6 +139,7 @@ public class FastLogManager extends Thread {
     }
 
 
+    ///添加日志信息到数据结构中，以供异步flush
     public void addLog(String filename, String message) {
         FastLogItem active = ITEMS.get(filename);
         if (active == null) {
