@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public class BenchmarkTest {
 
-    private static final int threadNum = 1;
+    private static final int threadNum = 2;
     private FastLog log = FastLog.getInstance();
 
     private int loop = 20;
@@ -28,7 +28,6 @@ public class BenchmarkTest {
         for (int i = 0; i < loop; i++) {
             pool.execute(() -> {
                 log.info("hello world.hello world.");
-                log.error("hello world.hello world.");
                 count.incrementAndGet();
                 latch.countDown();
             });

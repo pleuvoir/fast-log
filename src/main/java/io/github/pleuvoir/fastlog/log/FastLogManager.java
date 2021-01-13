@@ -121,6 +121,8 @@ public class FastLogManager extends Thread {
             if (currentTimeMillis >= item.getNextWriteTimeStamp()
                     || item.getCurCacheSize() > FLUSH_CACHE_SIZE
                     || forceFlush) {
+
+                //切换buffer，此时新的写入会切换到另一个buffer中，可避免使用一个buffer写入磁盘时缓冲依然再追加以及可能清空新追加内容的问题
                 final char curBuffer = item.curBuffer;
                 if (curBuffer == 'A') {
                     currentBuffer = item.getBufferA();
@@ -186,7 +188,7 @@ public class FastLogManager extends Thread {
                 size += bytes.length;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         } finally {
             IOUtils.close(fos);
             buffers.clear();

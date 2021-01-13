@@ -48,7 +48,7 @@ public class FastLog {
         writeLog("warn", Const.WARN, message);
     }
 
-    public synchronized void info(String message) {
+    public void info(String message) {
         writeLog("info", Const.INFO, message);
     }
 
